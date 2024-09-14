@@ -8,7 +8,7 @@ type Messages struct {
 	gorm.Model
 	Channel   string
 	Message   string
-	Username  string
+	UserId    uint
 	Timestamp uint64
 }
 
