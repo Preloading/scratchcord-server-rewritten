@@ -63,15 +63,14 @@ var (
 	// Obviously, this is just a test example. Do not do this in production.
 	// In production, you would have the private key and public key pair generated
 	// in advance. NEVER add a private key to any GitHub repo.
-	privateKey    *rsa.PrivateKey
-	motd          string = "Welcome to scratchcord!"
-	webhook_url   string = "https://discord.com/api/webhooks/1284345712632664160/WAAxnW3-7hoVfslK4SHSv7YnvXaHRCBKiWqXdc_5drJkobzFoLCPQM_GIWh85JRT_U3l"
-	db            *gorm.DB
-	BroadcastChan = make(chan BroadcastDBMessage)
+	privateKey         *rsa.PrivateKey
+	motd               string = "Welcome to scratchcord!"
+	webhook_url        string = "https://discord.com/api/webhooks/1284345712632664160/WAAxnW3-7hoVfslK4SHSv7YnvXaHRCBKiWqXdc_5drJkobzFoLCPQM_GIWh85JRT_U3l"
+	db                 *gorm.DB
+	BroadcastPublisher = NewEventPublisher()
 )
 
 func main() {
-
 	// Configure runtime settings
 	debug.SetGCPercent(35) // 35% limit for GC
 
@@ -146,8 +145,7 @@ func (m *Messages) AfterCreate(tx *gorm.DB) (err error) {
 		event: "new_message",
 		data:  *m,
 	}
-	BroadcastChan <- msg
-	BroadcastChan <- msg
+	BroadcastPublisher.Publish(msg)
 	log.Println("Msg Recv")
 	return
 }
@@ -158,16 +156,15 @@ func (m *Messages) AfterUpdate(tx *gorm.DB) (err error) {
 		event: "message_updated",
 		data:  *m,
 	}
-	BroadcastChan <- msg
-	BroadcastChan <- msg
+	BroadcastPublisher.Publish(msg)
 	return
 }
 
 func start_discord_webhook() {
 	// Start a goroutine to listen for new messages
 	go func() {
-		for {
-			msg := <-BroadcastChan
+		eventChannel := BroadcastPublisher.Subscribe()
+		for msg := range eventChannel {
 			// var content = "This is a test message"
 			message := discordwebhook.Message{
 				Username: &msg.data.Username,
@@ -323,8 +320,9 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 	)
 	// Start a goroutine to listen for new messages
 	go func() {
-		for {
-			recv_msg := <-BroadcastChan
+		eventChannel := BroadcastPublisher.Subscribe()
+		defer BroadcastPublisher.Unsubscribe(eventChannel)
+		for recv_msg := range eventChannel {
 			recv_processed_msg := RecievedMessageResponse{
 				Cmd:     "recv_msg",
 				UserId:  recv_msg.data.Username, // TODO: Replace this with the User ID
