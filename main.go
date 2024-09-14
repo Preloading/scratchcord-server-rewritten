@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gtuk/discordwebhook"
 
 	// Database
 	"gorm.io/driver/sqlite"
@@ -42,11 +43,13 @@ var (
 	// in advance. NEVER add a private key to any GitHub repo.
 	privateKey    *rsa.PrivateKey
 	motd          string = "Welcome to scratchcord!"
+	webhook_url   string = "https://discord.com/api/webhooks/1284345712632664160/WAAxnW3-7hoVfslK4SHSv7YnvXaHRCBKiWqXdc_5drJkobzFoLCPQM_GIWh85JRT_U3l"
 	db            *gorm.DB
 	BroadcastChan = make(chan string)
 )
 
 func main() {
+
 	// Configure runtime settings
 	debug.SetGCPercent(35) // 35% limit for GC
 
@@ -102,6 +105,8 @@ func main() {
 		},
 	}))
 
+	start_discord_webhook()
+
 	app.Get("/check_auth", check_auth)
 	app.Get("/get_offline_messages/:channel", get_offline_messages)
 
@@ -110,7 +115,6 @@ func main() {
 
 	//log.Fatal(app.ListenTLS("0.0.0.0:3000", "./cert.pem", "./key.pem"))
 	// Access the websocket server: wss://0.0.0.0:3000/
-
 }
 
 func (m *Messages) AfterCreate(tx *gorm.DB) (err error) {
@@ -131,6 +135,25 @@ func (m *Messages) AfterUpdate(tx *gorm.DB) (err error) {
 	})
 	BroadcastChan <- string(msgJSON)
 	return
+}
+
+func start_discord_webhook() {
+	// Start a goroutine to listen for new messages
+	go func() {
+		for {
+			msg := <-BroadcastChan
+			var username = "BotUser"
+			// var content = "This is a test message"
+			message := discordwebhook.Message{
+				Username: &username,
+				Content:  &msg,
+			}
+
+			if err := discordwebhook.SendMessage(webhook_url, message); err != nil {
+				log.Fatal(err)
+			}
+		}
+	}()
 }
 
 func hello(c *fiber.Ctx) error {
