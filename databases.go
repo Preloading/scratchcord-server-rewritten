@@ -14,9 +14,10 @@ type Messages struct {
 
 type Accounts struct {
 	gorm.Model
-	Username    string
-	Avatar      string
-	Supporter   bool
-	DateCreated uint64
-	LastLogin   uint64
+	Username     string `gorm:"uniqueIndex"`
+	PasswordHash string
+	Avatar       string
+	Supporter    bool
+	DateCreated  uint64
+	LastLogin    uint64
 }
