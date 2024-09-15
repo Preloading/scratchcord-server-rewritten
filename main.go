@@ -327,6 +327,9 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					Message: recv_msg.data.Message,
 				}
 				responce_json, err = json.Marshal(responce)
+			default:
+				c.Close()
+				return
 			}
 
 			if err != nil {
