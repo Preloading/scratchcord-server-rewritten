@@ -183,7 +183,7 @@ func get_user_info(c *fiber.Ctx) error {
 	} else {
 		return c.SendString("malformed input!")
 	}
-	if &user == nil {
+	if user.ID == 0 {
 		return c.SendString("user not found!")
 	}
 	userResponse := UserInfoResponse{
