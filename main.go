@@ -1,15 +1,13 @@
 package main
 
 import (
-	// Crypto Stuff
 	"crypto/rand"
 	"crypto/rsa"
-	"errors"
-	"os"
-
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"os"
 	"runtime/debug"
 	"time"
 
@@ -17,10 +15,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-
-	// Database
+	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	// Crypto Stuff
+
+	// Database
 
 	// Auth
 	jwtware "github.com/gofiber/contrib/jwt"
@@ -39,6 +41,19 @@ type RecievedMessageResponse struct {
 	UserId    uint
 	MessageId uint
 	Message   string
+}
+type RecievedMessageResponseNoBody struct {
+	Cmd       string
+	UserId    uint
+	MessageId uint
+}
+type RecievedTypingResponse struct {
+	Cmd    string
+	UserId uint
+}
+type KickedResponse struct {
+	Cmd     string
+	Message string
 }
 type BroadcastDBMessage struct {
 	event string
@@ -62,8 +77,8 @@ var (
 	// In production, you would have the private key and public key pair generated
 	// in advance. NEVER add a private key to any GitHub repo.
 	privateKey         *rsa.PrivateKey
-	motd               string = "Welcome to scratchcord!"
-	webhook_url        string = "https://discord.com/api/webhooks/1284345712632664160/WAAxnW3-7hoVfslK4SHSv7YnvXaHRCBKiWqXdc_5drJkobzFoLCPQM_GIWh85JRT_U3l"
+	motd               string = os.Getenv("SCRATCHCORD_MOTD")
+	webhook_url        string = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
 	db                 *gorm.DB
 	BroadcastPublisher = NewEventPublisher()
 )
@@ -71,6 +86,8 @@ var (
 func main() {
 	// Configure runtime settings
 	debug.SetGCPercent(35) // 35% limit for GC
+
+	godotenv.Load()
 
 	// Auth setup
 	rng := rand.Reader
@@ -249,21 +266,74 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 		eventChannel := BroadcastPublisher.Subscribe()
 		defer BroadcastPublisher.Unsubscribe(eventChannel)
 		for recv_msg := range eventChannel {
-			if recv_msg.data.Channel != channel {
+			// If the message is of a type that is global, we ignore the channel check
+			if recv_msg.data.Type == 100 ||
+				recv_msg.data.Type == 101 ||
+				recv_msg.data.Type == 105 {
+
+			} else if recv_msg.data.Channel != channel {
 				continue
 			}
-			recv_processed_msg := RecievedMessageResponse{
-				Cmd:       "recv_msg",
-				UserId:    recv_msg.data.UserId, // TODO: Replace this with the User ID
-				MessageId: recv_msg.data.ID,
-				Message:   recv_msg.data.Message,
+
+			// Handle kicking a specific user
+			if recv_msg.data.Type == 104 && recv_msg.data.UserId != uint(user_id) {
+				continue
 			}
-			recv_msg_json, err := json.Marshal(recv_processed_msg)
+			responce_json := []byte{}
+			switch recv_msg.data.Type {
+			case 1: // Normal Message
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_msg",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 2: // Nudge
+				responce := RecievedMessageResponseNoBody{
+					Cmd:       "recv_nudge",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 3:
+				responce := RecievedMessageResponseNoBody{
+					Cmd:    "recv_typing",
+					UserId: recv_msg.data.UserId,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 100:
+			case 102:
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_special_msg",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 101:
+			case 103:
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_special_tts_msg",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 104:
+			case 105:
+				responce := KickedResponse{
+					Cmd:     "kicked",
+					Message: recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
+			}
+
 			if err != nil {
 				c.Close()
 				return
 			}
-			if err := c.WriteMessage(websocket.TextMessage, recv_msg_json); err != nil {
+			if err := c.WriteMessage(websocket.TextMessage, responce_json); err != nil {
 				log.Println("write error:", err)
 				return // Exit the goroutine if there's a write error
 			}
@@ -291,8 +361,35 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 				return
 			}
 			log.Println(r.Message)
-			db_msg := Messages{Message: string(r.Message), UserId: uint(user_id), Channel: channel, Timestamp: uint64(time.Now().Unix())}
+			db_msg := Messages{
+				Message:   string(r.Message),
+				UserId:    uint(user_id),
+				Type:      1,
+				Channel:   channel,
+				Timestamp: uint64(time.Now().Unix()),
+			}
 			db.Create(&db_msg)
+		case "nudge":
+			db_msg := Messages{
+				Message:   "",
+				UserId:    uint(user_id),
+				Type:      2,
+				Channel:   channel,
+				Timestamp: uint64(time.Now().Unix()),
+			}
+			db.Create(&db_msg)
+		case "typing":
+			msg := BroadcastDBMessage{
+				event: "new_message",
+				data: Messages{
+					Message:   "",
+					UserId:    uint(user_id),
+					Type:      3,
+					Channel:   channel,
+					Timestamp: uint64(time.Now().Unix()),
+				},
+			}
+			BroadcastPublisher.Publish(msg)
 		default:
 			c.Close()
 		}

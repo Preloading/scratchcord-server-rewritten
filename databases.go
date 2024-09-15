@@ -6,8 +6,22 @@ import (
 
 type Messages struct {
 	gorm.Model
-	Channel   string
-	Message   string
+	Channel string
+	Message string
+
+	// Type... types
+	// 1 - Normal Message
+	// 2 - Nudge
+	// 3 - Typing, does not store in DB
+	// 4 - Game Start Request
+	// 100 - Global Message (admin only)
+	// 101 - Global TTS Message (admin only)
+	// 102 - Channel Special Message (admin only)
+	// 103 - Channel Special TTS Message (admin only)
+	// 104 - Kick User (admin only)
+	// 105 - Kick All Users (admin only)
+	Type uint8
+
 	UserId    uint
 	Timestamp uint64
 }
