@@ -23,3 +23,5 @@ go.work
 sqlite/scratchcord*.db
 .vscode
 .vscode/launch.json
+
+.env
