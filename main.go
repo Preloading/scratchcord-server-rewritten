@@ -4,6 +4,8 @@ import (
 	// Crypto Stuff
 	"crypto/rand"
 	"crypto/rsa"
+	"errors"
+	"os"
 
 	"encoding/json"
 	"fmt"
@@ -79,6 +81,11 @@ func main() {
 	}
 
 	// Database
+
+	if _, err := os.Stat("sqlite/scratchcord.db"); errors.Is(err, os.ErrNotExist) {
+		os.Create("sqlite/scratchcord.db")
+	}
+
 	db, err = gorm.Open(sqlite.Open("sqlite/scratchcord.db"), &gorm.Config{})
 
 	if err != nil {
