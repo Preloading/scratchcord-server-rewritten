@@ -114,7 +114,7 @@ func main() {
 	db.AutoMigrate(&Ranks{})
 
 	// Initialize Ranks
-	initialize_ranks()
+	InitializeRanks()
 
 	// Create fiber application
 	app := fiber.New()

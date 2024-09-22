@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -53,16 +54,10 @@ func (r *Ranks) SetSubtractiveRanks(subtractiveRanks []string) error {
 	return nil
 }
 
-func InitializeRanksFromJSON(filePath string) error {
-	// Read the JSON file
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to read JSON file: %w", err)
-	}
-
+func InitializeRanksFromJSON(data []byte) error {
 	// Parse the JSON data
 	var defaultRanks []DefaultRanksJson
-	err = json.Unmarshal(data, &defaultRanks)
+	err := json.Unmarshal(data, &defaultRanks)
 	if err != nil {
 		return fmt.Errorf("failed to parse JSON data: %w", err)
 	}
@@ -158,12 +153,18 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 	return effectivePermissions, nil
 }
 
-func initialize_ranks() {
+//go:embed config/default_ranks.json
+var defaultRanksJson []byte
+
+//go:embed config/required_ranks.json
+var requiredRanksJson []byte
+
+func InitializeRanks() {
 	var testRank Ranks
 	result := db.First(&testRank)
 	if result.RowsAffected == 0 {
 		fmt.Println("Ranks not found! Restoring default values.")
-		err := InitializeRanksFromJSON("config/default_ranks.json")
+		err := InitializeRanksFromJSON(defaultRanksJson)
 		if err != nil {
 			fmt.Println("Error restoring default ranks:", err)
 			os.Exit(1)
@@ -171,7 +172,7 @@ func initialize_ranks() {
 	}
 
 	// Initialize required ranks from JSON file
-	err := InitializeRanksFromJSON("config/required_ranks.json")
+	err := InitializeRanksFromJSON(requiredRanksJson)
 	if err != nil {
 		fmt.Println("Error verifying & readding required ranks:", err)
 		os.Exit(1)
