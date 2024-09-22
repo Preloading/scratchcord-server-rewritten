@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,9 +17,61 @@ type LoginRequest struct {
 	Password string
 }
 
+type ReauthRequest struct {
+	Token string
+}
+
 type RegisterRequest struct { // This is the same for now, but maybe later more info will be added, like email? idk. Least it'll have the option
 	Username string
 	Password string
+}
+
+func reauth(c *fiber.Ctx) error {
+
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	accountId := claims["id"].(string)
+
+	if check_if_token_expired(user) {
+		return c.SendString("token expired!")
+	}
+
+	account := Accounts{}
+	if err := db.First(&account, "id = ?", accountId); err.Error != nil {
+		return c.SendString("account does not exist!")
+	}
+	if db.RowsAffected == 0 {
+		return c.SendString("account does not exist!")
+	}
+
+	ranks, err := GetEffectivePermissions(account.Ranks)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if !slices.Contains(ranks, "CanBeLoggedInto") {
+		return c.SendString("account login is restricted!")
+	}
+
+	// Create the Claims (info encoded inside the token)
+	newClaims := jwt.MapClaims{
+		"id":  account.ID,
+		"exp": time.Now().Add(time.Hour * 72).Unix(),
+	}
+	// Create new token
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, newClaims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString(privateKey)
+	if err != nil {
+		log.Printf("token.SignedString: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	// update last login
+	account.LastLogin = uint64(time.Now().Unix())
+	db.Save(&account)
+	return c.JSON(fiber.Map{"token": t, "avatar": account.Avatar, "ranks": ranks, "motd": motd})
 }
 
 func login(c *fiber.Ctx) error {
@@ -150,4 +203,14 @@ func check_auth(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["username"].(string)
 	return c.SendString("Welcome " + name)
+}
+
+func check_if_token_expired(token *jwt.Token) bool {
+	claims := token.Claims.(jwt.MapClaims)
+	exp := claims["exp"].(string)
+	if i, err := strconv.ParseInt(exp, 10, 64); err != nil && i > time.Now().Unix() {
+		return true
+	} else {
+		return false
+	}
 }

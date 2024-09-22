@@ -153,6 +153,7 @@ func main() {
 
 	start_discord_webhook() // Start the discord webhook
 
+	app.Post("/reauth", reauth)
 	app.Get("/check_auth", check_auth)
 	app.Get("/get_offline_messages/:channel", get_offline_messages)
 
