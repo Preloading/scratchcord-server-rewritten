@@ -112,6 +112,7 @@ func main() {
 	db.AutoMigrate(&Messages{})
 	db.AutoMigrate(&Accounts{})
 
+	wmain()
 	// Create fiber application
 	app := fiber.New()
 
