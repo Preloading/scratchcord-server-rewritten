@@ -239,6 +239,8 @@
             "CanReadSystemMessages",
             "CanReadOfflineMessages",
             "CanBeLoggedInto",
+            "CanRecieveTyping",
+            "CanSendTyping",
             "AdvertsEnabled"
         ],
         "SubtractiveRanks": []
@@ -351,6 +353,22 @@
     {
         "RankStrength":512,
         "RankName":"ImageAIAccess",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":513,
+        "RankName":"CanRecieveTyping",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":514,
+        "RankName":"CanSendTyping",
         "Color":"default",
         "ShowToOtherUsers":false,
         "ParentRanks": [],

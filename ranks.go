@@ -97,24 +97,38 @@ func InitializeRanksFromJSON(data []byte) error {
 	return nil
 }
 
-func GetEffectivePermissions(userRanks []string) ([]string, error) {
-	// 1. Create a map to store all permissions (including inherited)
+func GetEffectivePermissions(userInput interface{}) ([]string, error) {
+	// 1. Determine input type and convert to []string
+	var userRanks []string
+	switch v := userInput.(type) {
+	case []string:
+		userRanks = v
+	case string:
+		err := json.Unmarshal([]byte(v), &userRanks)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse JSON string into []string: %w", err)
+		}
+	default:
+		return nil, fmt.Errorf("invalid input type: expected []string or string (JSON array), got %T", userInput)
+	}
+
+	// 2. Create a map to store all permissions (including inherited)
 	allPermissions := make(map[string]bool)
 
-	// 2. Iterate through user's ranks from highest to lowest strength
+	// 3. Iterate through user's ranks from highest to lowest strength
 	for i := len(userRanks) - 1; i >= 0; i-- {
 		rankName := userRanks[i]
 
-		// 3. Fetch the rank details from the database
+		// 4. Fetch the rank details from the database
 		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
 		}
 
-		// 4. Add current rank's permissions
+		// 5. Add current rank's permissions
 		allPermissions[rankName] = true
 
-		// 5. Add parent rank's permissions
+		// 6. Add parent rank's permissions
 		parentRanks, err := rank.GetParentRanks()
 		if err != nil {
 			return nil, fmt.Errorf("failed to get parent ranks: %w", err)
@@ -124,17 +138,17 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 		}
 	}
 
-	// 6. Iterate through user's ranks again to process subtractive ranks
+	// 7. Iterate through user's ranks again to process subtractive ranks
 	for i := len(userRanks) - 1; i >= 0; i-- {
 		rankName := userRanks[i]
 
-		// 7. Fetch the rank details from the database
+		// 8. Fetch the rank details from the database
 		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
 		}
 
-		// 8. Remove subtractive ranks and their sub-ranks
+		// 9. Remove subtractive ranks and their sub-ranks
 		subtractiveRanks, err := rank.GetSubtractiveRanks()
 		if err != nil {
 			return nil, fmt.Errorf("failed to get subtractive ranks: %w", err)
@@ -144,7 +158,7 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 		}
 	}
 
-	// 9. Convert the map keys (which are the effective permissions) to a slice
+	// 10. Convert the map keys (which are the effective permissions) to a slice
 	effectivePermissions := make([]string, 0, len(allPermissions))
 	for permission := range allPermissions {
 		effectivePermissions = append(effectivePermissions, permission)

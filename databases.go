@@ -31,7 +31,6 @@ type Accounts struct {
 	Username     string `gorm:"uniqueIndex"`
 	PasswordHash string
 	Avatar       string
-	Supporter    bool
 	DateCreated  uint64
 	LastLogin    uint64
 	Ranks        string `gorm:"type:text"` // Stored as JSON array
