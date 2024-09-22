@@ -160,8 +160,8 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 
 func initialize_ranks() {
 	var testRank Ranks
-	db.First(&testRank)
-	if testRank.RankName == "" {
+	result := db.First(&testRank)
+	if result.RowsAffected == 0 {
 		fmt.Println("Ranks not found! Restoring default values.")
 		err := InitializeRanksFromJSON("config/default_ranks.json")
 		if err != nil {
