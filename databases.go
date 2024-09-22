@@ -34,4 +34,5 @@ type Accounts struct {
 	Supporter    bool
 	DateCreated  uint64
 	LastLogin    uint64
+	Ranks        string `gorm:"type:text"` // Stored as JSON array
 }

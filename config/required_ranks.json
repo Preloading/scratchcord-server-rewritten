@@ -1,0 +1,307 @@
+[
+    {
+        "RankStrength":5003,
+        "RankName":"Owner",
+        "Color":"red",
+        "ShowToOtherUsers":true,
+        "ParentRanks": [
+            "Administrator"
+        ],
+        "SubtractiveRanks": [
+            "Banned",
+            "Muted"
+        ]
+    },
+    {
+        "RankStrength":5002,
+        "RankName":"Administrator",
+        "Color":"orange",
+        "ShowToOtherUsers":true,
+        "ParentRanks": [
+            "Supporter",
+            "CanGrantRanks",
+            "CanRevokeRanks",
+            "CanCreateRanks",
+            "CanModifyRanks",
+            "CanDeleteRanks",
+            "CanBanUsers",
+            "CanMuteUsers",
+            "CanDeleteUsers",
+            "CanChangeMOTD",
+            "CanSendSystemMessage"
+        ],
+        "SubtractiveRanks": []
+    },
+
+
+
+
+    {
+        "RankStrength":5001,
+        "RankName":"Banned",
+        "Color":"grey",
+        "ShowToOtherUsers":true,
+        "ParentRanks": [
+            "Muted"
+        ],
+        "SubtractiveRanks": [
+            "CanReadMessages",
+            "CanReadSystemMessages",
+            "CanReadOfflineMessages",
+            "CanBeLoggedInto",
+            "UsesBotAuth",
+            "CanGrantRanks",
+            "CanRevokeRanks",
+            "CanCreateRanks",
+            "CanModifyRanks",
+            "CanDeleteRanks",
+            "CanBanUsers",
+            "CanMuteUsers",
+            "CanDeleteUsers",
+            "CanChangeMOTD",
+            "CanSendSystemMessage"
+        ]
+    },
+    {
+        "RankStrength":5000,
+        "RankName":"Muted",
+        "Color":"grey",
+        "ShowToOtherUsers":true,
+        "ParentRanks": [],
+        "SubtractiveRanks": [
+            "CanSendMessage",
+            "CanSendNudge"
+        ]
+    },
+
+
+
+
+    {
+        "RankStrength":3011,
+        "RankName":"CanKickAllUsers",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3010,
+        "RankName":"CanKickUser",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3009,
+        "RankName":"CanGrantRanks",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3008,
+        "RankName":"CanRevokeRanks",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3007,
+        "RankName":"CanCreateRanks",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3006,
+        "RankName":"CanModifyRanks",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3005,
+        "RankName":"CanDeleteRanks",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3004,
+        "RankName":"CanBanUsers",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3003,
+        "RankName":"CanMuteUsers",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3002,
+        "RankName":"CanDeleteUsers",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3001,
+        "RankName":"CanChangeMOTD",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":3000,
+        "RankName":"CanSendSystemMessage",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+
+
+    {
+        "RankStrength":1000,
+        "RankName":"Member",
+        "Color":"default",
+        "ShowToOtherUsers":true,
+        "ParentRanks": [
+            "CanSendMessage",
+            "CanSendNudge",
+            "CanReadMessages",
+            "CanReadSystemMessages",
+            "CanReadOfflineMessages",
+            "CanBeLoggedInto",
+            "AdvertsEnabled"
+        ],
+        "SubtractiveRanks": []
+    },
+
+
+
+
+
+    {
+        "RankStrength":500,
+        "RankName":"CanSendMessage",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":501,
+        "RankName":"CanSendNudge",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":502,
+        "RankName":"CanReadMessages",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":503,
+        "RankName":"CanReadNudges",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":504,
+        "RankName":"CanReadSystemMessages",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":505,
+        "RankName":"CanReadOfflineMessages",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":506,
+        "RankName":"CanBeLoggedInto",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": [
+            "UsesBotAuth"
+        ]
+    },
+    {
+        "RankStrength":507,
+        "RankName":"UsesBotAuth",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": [
+            "CanBeLoggedInto"
+        ]
+    },
+    {
+        "RankStrength":508,
+        "RankName":"CanChangeProfilePicture",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":509,
+        "RankName":"AdvertsEnabled",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":510,
+        "RankName":"TextAI1Access",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":511,
+        "RankName":"TextAI2Access",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":512,
+        "RankName":"ImageAIAccess",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    }
+]

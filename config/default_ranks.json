@@ -35,7 +35,7 @@
     {
         "RankStrength":4001,
         "RankName":"Storefront Manager",
-        "Color":"bot",
+        "Color":"lightblue",
         "ShowToOtherUsers":true,
         "ParentRanks": [
             "Bot",
@@ -94,7 +94,7 @@
 
 
     {
-        "RankStrength":3000,
+        "RankStrength":3009,
         "RankName":"CanGrantRanks",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -102,7 +102,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3008,
         "RankName":"CanRevokeRanks",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -110,7 +110,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3007,
         "RankName":"CanCreateRanks",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -118,7 +118,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3006,
         "RankName":"CanModifyRanks",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -126,7 +126,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3005,
         "RankName":"CanDeleteRanks",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -134,7 +134,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3004,
         "RankName":"CanBanUsers",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -142,7 +142,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3003,
         "RankName":"CanMuteUsers",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -150,7 +150,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3002,
         "RankName":"CanDeleteUsers",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -158,7 +158,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":3000,
+        "RankStrength":3001,
         "RankName":"CanChangeMOTD",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -243,7 +243,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":501,
         "RankName":"CanSendNudge",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -251,7 +251,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":502,
         "RankName":"CanReadMessages",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -259,7 +259,15 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":503,
+        "RankName":"CanReadNudges",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":504,
         "RankName":"CanReadSystemMessages",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -267,7 +275,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":505,
         "RankName":"CanReadOfflineMessages",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -275,7 +283,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":506,
         "RankName":"CanBeLoggedInto",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -285,7 +293,7 @@
         ]
     },
     {
-        "RankStrength":500,
+        "RankStrength":507,
         "RankName":"UsesBotAuth",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -295,7 +303,7 @@
         ]
     },
     {
-        "RankStrength":500,
+        "RankStrength":508,
         "RankName":"CanChangeProfilePicture",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -303,7 +311,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":509,
         "RankName":"AdvertsEnabled",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -311,7 +319,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":510,
         "RankName":"TextAI1Access",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -319,7 +327,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":511,
         "RankName":"TextAI2Access",
         "Color":"default",
         "ShowToOtherUsers":false,
@@ -327,7 +335,7 @@
         "SubtractiveRanks": []
     },
     {
-        "RankStrength":500,
+        "RankStrength":512,
         "RankName":"ImageAIAccess",
         "Color":"default",
         "ShowToOtherUsers":false,

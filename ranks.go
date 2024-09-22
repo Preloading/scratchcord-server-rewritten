@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type Rank struct {
+type Ranks struct {
 	RankStrength     uint   `gorm:"primaryKey"`
 	RankName         string `gorm:"uniqueIndex"`
 	Color            string // Default: default
@@ -14,20 +14,28 @@ type Rank struct {
 	ParentRanks      string `gorm:"type:text"` // Stored as JSON array
 	SubtractiveRanks string `gorm:"type:text"` // Stored as JSON array
 }
+type DefaultRanksJson struct {
+	RankStrength     uint
+	RankName         string
+	Color            string // Default: default
+	ShowToOtherUsers bool
+	ParentRanks      []string
+	SubtractiveRanks []string
+}
 
-func (r *Rank) GetParentRanks() ([]string, error) {
+func (r *Ranks) GetParentRanks() ([]string, error) {
 	var parentRanks []string
 	err := json.Unmarshal([]byte(r.ParentRanks), &parentRanks)
 	return parentRanks, err
 }
 
-func (r *Rank) GetSubtractiveRanks() ([]string, error) {
+func (r *Ranks) GetSubtractiveRanks() ([]string, error) {
 	var subtractiveRanks []string
 	err := json.Unmarshal([]byte(r.SubtractiveRanks), &subtractiveRanks)
 	return subtractiveRanks, err
 }
 
-func (r *Rank) SetParentRanks(parentRanks []string) error {
+func (r *Ranks) SetParentRanks(parentRanks []string) error {
 	jsonRanks, err := json.Marshal(parentRanks)
 	if err != nil {
 		return err
@@ -36,7 +44,7 @@ func (r *Rank) SetParentRanks(parentRanks []string) error {
 	return nil
 }
 
-func (r *Rank) SetSubtractiveRanks(subtractiveRanks []string) error {
+func (r *Ranks) SetSubtractiveRanks(subtractiveRanks []string) error {
 	jsonRanks, err := json.Marshal(subtractiveRanks)
 	if err != nil {
 		return err
@@ -53,7 +61,7 @@ func InitializeRanksFromJSON(filePath string) error {
 	}
 
 	// Parse the JSON data
-	var defaultRanks []Rank
+	var defaultRanks []DefaultRanksJson
 	err = json.Unmarshal(data, &defaultRanks)
 	if err != nil {
 		return fmt.Errorf("failed to parse JSON data: %w", err)
@@ -62,11 +70,30 @@ func InitializeRanksFromJSON(filePath string) error {
 	// Insert default ranks into the database
 	for _, rank := range defaultRanks {
 		// Check if rank already exists
-		existingRank := Rank{}
+		existingRank := Ranks{}
 		result := db.Where("rank_name = ?", rank.RankName).First(&existingRank)
 		if result.RowsAffected == 0 {
 			// Rank doesn't exist, create it
-			if err := db.Create(&rank).Error; err != nil {
+
+			// Marshal parent and subtractive ranks to JSON
+			parentRanksJSON, err := json.Marshal(rank.ParentRanks)
+			if err != nil {
+				return fmt.Errorf("failed to marshal parent ranks: %w", err)
+			}
+			subtractiveRanksJSON, err := json.Marshal(rank.SubtractiveRanks)
+			if err != nil {
+				return fmt.Errorf("failed to marshal subtractive ranks: %w", err)
+			}
+
+			newRank := Ranks{
+				RankStrength:     rank.RankStrength,
+				RankName:         rank.RankName,
+				Color:            rank.Color,
+				ShowToOtherUsers: rank.ShowToOtherUsers,
+				ParentRanks:      string(parentRanksJSON),
+				SubtractiveRanks: string(subtractiveRanksJSON),
+			}
+			if err := db.Create(&newRank).Error; err != nil {
 				return fmt.Errorf("failed to create rank: %w", err)
 			}
 		}
@@ -84,7 +111,7 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 		rankName := userRanks[i]
 
 		// 3. Fetch the rank details from the database
-		var rank Rank
+		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
 		}
@@ -107,7 +134,7 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 		rankName := userRanks[i]
 
 		// 7. Fetch the rank details from the database
-		var rank Rank
+		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
 		}
@@ -131,19 +158,32 @@ func GetEffectivePermissions(userRanks []string) ([]string, error) {
 	return effectivePermissions, nil
 }
 
+func initialize_ranks() {
+	var testRank Ranks
+	db.First(&testRank)
+	if testRank.RankName == "" {
+		fmt.Println("Ranks not found! Restoring default values.")
+		err := InitializeRanksFromJSON("config/default_ranks.json")
+		if err != nil {
+			fmt.Println("Error restoring default ranks:", err)
+			os.Exit(1)
+		}
+	}
+
+	// Initialize required ranks from JSON file
+	err := InitializeRanksFromJSON("config/required_ranks.json")
+	if err != nil {
+		fmt.Println("Error verifying & readding required ranks:", err)
+		os.Exit(1)
+	}
+}
+
 func wmain() {
 	// Example usage:
 	// Assuming you have a database connection established
 
-	// Initialize ranks from JSON file
-	err := InitializeRanksFromJSON("config/ranks.json")
-	if err != nil {
-		fmt.Println("Error initializing ranks:", err)
-		os.Exit(1)
-	}
-
 	// Example user with ranks
-	userRanks := []string{"Moderator", "VIP"}
+	userRanks := []string{"Supporter", "Member"}
 
 	// Get effective permissions
 	effectivePermissions, err := GetEffectivePermissions(userRanks)
