@@ -37,10 +37,11 @@ func reauth(c *fiber.Ctx) error {
 	}
 
 	account := Accounts{}
-	if err := db.First(&account, "id = ?", accountId); err.Error != nil {
+	result := db.First(&account, "id = ?", accountId)
+	if result.Error != nil {
 		return c.SendString("account does not exist!")
 	}
-	if db.RowsAffected == 0 {
+	if result.RowsAffected == 0 {
 		return c.SendString("account does not exist!")
 	}
 
@@ -82,12 +83,14 @@ func login(c *fiber.Ctx) error {
 	}
 
 	account := Accounts{}
-	if err := db.First(&account, "username = ?", r.Username); err.Error != nil {
+	result := db.First(&account, "username = ?", r.Username)
+	if result.Error != nil {
 		return c.SendString("account does not exist!")
 	}
-	if db.RowsAffected == 0 {
+	if result.RowsAffected == 0 {
 		return c.SendString("account does not exist!")
 	}
+
 	ranks, err := GetEffectivePermissions(account.Ranks)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
