@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"slices"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -210,8 +209,8 @@ func check_auth(c *fiber.Ctx) error {
 
 func check_if_token_expired(token *jwt.Token) bool {
 	claims := token.Claims.(jwt.MapClaims)
-	exp := claims["exp"].(string)
-	if i, err := strconv.ParseInt(exp, 10, 64); err != nil && i > time.Now().Unix() {
+	exp := claims["exp"].(float64)
+	if i := int64(exp); i < time.Now().Unix() {
 		return true
 	} else {
 		return false
@@ -228,7 +227,7 @@ func register_default_admin_account() {
 
 	// Check if username is already claimed.
 	var count int64 = 0
-	result := db.Model(&Accounts{}).Where("Username = ?", "Administrator")
+	result := db.Model(&Accounts{}).Where("username = ?", "Administrator")
 	if result.Count(&count); count > 0 {
 		result.Update("PasswordHash", string(hash))
 		result.Update("Ranks", `["Administrator"]`)

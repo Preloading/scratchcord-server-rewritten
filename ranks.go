@@ -180,40 +180,49 @@ func GetEffectivePermissions(userInput interface{}) ([]string, error) {
 	// 2. Create a map to store all permissions (including inherited)
 	allPermissions := make(map[string]bool)
 
-	// 3. Iterate through user's ranks from highest to lowest strength
-	for i := len(userRanks) - 1; i >= 0; i-- {
-		rankName := userRanks[i]
-
+	// 3. Helper function to recursively add parent rank permissions
+	var addParentPermissions func(rankName string) error
+	addParentPermissions = func(rankName string) error {
 		// 4. Fetch the rank details from the database
 		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
-			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
+			return fmt.Errorf("failed to fetch rank details: %w", err)
 		}
 
 		// 5. Add current rank's permissions
 		allPermissions[rankName] = true
 
-		// 6. Add parent rank's permissions
+		// 6. Recursively add parent rank's permissions
 		parentRanks, err := rank.GetParentRanks()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get parent ranks: %w", err)
+			return fmt.Errorf("failed to get parent ranks: %w", err)
 		}
 		for _, parentRank := range parentRanks {
-			allPermissions[parentRank] = true
+			if err := addParentPermissions(parentRank); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	// 7. Iterate through user's ranks and add permissions (including parents)
+	for _, rankName := range userRanks {
+		if err := addParentPermissions(rankName); err != nil {
+			return nil, err
 		}
 	}
 
-	// 7. Iterate through user's ranks again to process subtractive ranks
+	// 8. Iterate through user's ranks again to process subtractive ranks
 	for i := len(userRanks) - 1; i >= 0; i-- {
 		rankName := userRanks[i]
 
-		// 8. Fetch the rank details from the database
+		// 9. Fetch the rank details from the database
 		var rank Ranks
 		if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch rank details: %w", err)
 		}
 
-		// 9. Remove subtractive ranks and their sub-ranks
+		// 10. Remove subtractive ranks and their sub-ranks
 		subtractiveRanks, err := rank.GetSubtractiveRanks()
 		if err != nil {
 			return nil, fmt.Errorf("failed to get subtractive ranks: %w", err)
@@ -223,7 +232,7 @@ func GetEffectivePermissions(userInput interface{}) ([]string, error) {
 		}
 	}
 
-	// 10. Convert the map keys (which are the effective permissions) to a slice
+	// 11. Convert the map keys (which are the effective permissions) to a slice
 	effectivePermissions := make([]string, 0, len(allPermissions))
 	for permission := range allPermissions {
 		effectivePermissions = append(effectivePermissions, permission)
@@ -253,7 +262,7 @@ func InitializeRanks() {
 	// Initialize required ranks from JSON file
 	err := InitializeRanksFromJSON(requiredRanksJson)
 	if err != nil {
-		fmt.Println("Error verifying & readding required ranks:", err)
+		fmt.Println("Error veriafying & readding required ranks:", err)
 		os.Exit(1)
 	}
 }
@@ -263,7 +272,7 @@ func CheckIfTokenHasRank(c *fiber.Ctx, rank string) error {
 	// Check if the account being used to make this request has the permission
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	accountId := claims["id"].(string)
+	accountId := claims["id"].(float64)
 
 	if check_if_token_expired(user) {
 		return errors.New("token expired")
