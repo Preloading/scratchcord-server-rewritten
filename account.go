@@ -230,6 +230,9 @@ func register_default_admin_account() {
 	var count int64 = 0
 	result := db.Model(&Accounts{}).Where("Username = ?", "Administrator")
 	if result.Count(&count); count > 0 {
+		result.Update("PasswordHash", string(hash))
+		result.Update("Ranks", `["Administrator"]`)
+	} else {
 		account := Accounts{
 			Username:     "Administrator",
 			PasswordHash: string(hash),
@@ -241,9 +244,6 @@ func register_default_admin_account() {
 		}
 
 		db.Create(&account)
-	} else {
-		result.Update("PasswordHash", string(hash))
-		result.Update("Ranks", `["Administrator"]`)
 	}
 
 }
