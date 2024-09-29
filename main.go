@@ -77,6 +77,7 @@ var (
 	privateKey         *rsa.PrivateKey
 	motd               string = os.Getenv("SCRATCHCORD_MOTD")
 	webhook_url        string = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
+	admin_password     string = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
 	db                 *gorm.DB
 	BroadcastPublisher = NewEventPublisher()
 )
@@ -113,6 +114,9 @@ func main() {
 
 	// Initialize Ranks
 	InitializeRanks()
+
+	// Register default admin account (in order to be able to administer without DB edits)
+	register_default_admin_account()
 
 	// Create fiber application
 	app := fiber.New()
@@ -156,6 +160,10 @@ func main() {
 	app.Post("/reauth", reauth)
 	app.Get("/check_auth", check_auth)
 	app.Get("/get_offline_messages/:channel", get_offline_messages)
+
+	// Admin Requests
+	app.Post("/admin/api/grant_rank", GrantRanksAPI)
+	app.Post("/admin/api/revoke_rank", RevokeRanksAPI)
 
 	log.Fatal(app.Listen(":3000"))
 	// Access the websocket server: ws://0.0.0.0:3000/

@@ -3,8 +3,13 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"slices"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Ranks struct {
@@ -51,6 +56,66 @@ func (r *Ranks) SetSubtractiveRanks(subtractiveRanks []string) error {
 		return err
 	}
 	r.SubtractiveRanks = string(jsonRanks)
+	return nil
+}
+
+func AddRankToUser(id int64, rankToAdd string) error {
+	var user Accounts
+	db.First(&user, "id = ?", id)
+	var ranks []string
+	err := json.Unmarshal([]byte(user.Ranks), &ranks)
+	if err != nil {
+		return err
+	}
+	if slices.Contains(ranks, rankToAdd) {
+		return errors.New("rank already exists")
+	}
+	ranks = append(ranks, rankToAdd)
+	jsonRanks, err := json.Marshal(ranks)
+	if err != nil {
+		return err
+	}
+	if err := db.Model(&user).Where("id = ?", id).Update("ranks", jsonRanks).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RemoveRankFromUser(id int64, rankToRemove string) error {
+	var user Accounts
+	db.First(&user, "id = ?", id)
+	var ranks []string
+	err := json.Unmarshal([]byte(user.Ranks), &ranks)
+	if err != nil {
+		return err
+	}
+	if slices.Contains(ranks, rankToRemove) {
+		return errors.New("rank already exists")
+	}
+
+	// Find the index of the rank to remove
+	indexToRemove := -1
+	for i, r := range ranks {
+		if r == rankToRemove {
+			indexToRemove = i
+			break
+		}
+	}
+
+	// If the rank was found, remove it
+	if indexToRemove != -1 {
+		ranks = append(ranks[:indexToRemove], ranks[indexToRemove+1:]...)
+
+		jsonRanks, err := json.Marshal(ranks)
+		if err != nil {
+			return err
+		}
+		if err := db.Model(&user).Where("id = ?", id).Update("ranks", jsonRanks).Error; err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -193,20 +258,32 @@ func InitializeRanks() {
 	}
 }
 
-func wmain() {
-	// Example usage:
-	// Assuming you have a database connection established
+func CheckIfTokenHasRank(c *fiber.Ctx, rank string) error {
 
-	// Example user with ranks
-	userRanks := []string{"Supporter", "Member"}
+	// Check if the account being used to make this request has the permission
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	accountId := claims["id"].(string)
 
-	// Get effective permissions
-	effectivePermissions, err := GetEffectivePermissions(userRanks)
-	if err != nil {
-		fmt.Println("Error getting effective permissions:", err)
-		os.Exit(1)
+	if check_if_token_expired(user) {
+		return errors.New("token expired")
 	}
 
-	// Print effective permissions
-	fmt.Println("Effective Permissions:", effectivePermissions)
+	adminAccount := Accounts{}
+	result := db.First(&adminAccount, "id = ?", accountId)
+	if result.Error != nil {
+		return errors.New("user does not exist")
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("user does not exist")
+	}
+
+	ranks, err := GetEffectivePermissions(adminAccount.Ranks)
+	if err != nil {
+		return errors.New("an internal server error occured")
+	}
+	if !slices.Contains(ranks, rank) {
+		return errors.New("user doess not contain the rank")
+	}
+	return nil
 }
