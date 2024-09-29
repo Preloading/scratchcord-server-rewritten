@@ -19,6 +19,7 @@
         "ShowToOtherUsers":true,
         "ParentRanks": [
             "Supporter",
+            "Member",
             "CanGrantRanks",
             "CanRevokeRanks",
             "CanCreateRanks",
