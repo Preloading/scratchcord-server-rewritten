@@ -164,6 +164,7 @@ func main() {
 	// Admin Requests
 	app.Post("/admin/api/grant_rank", GrantRanksAPI)
 	app.Post("/admin/api/revoke_rank", RevokeRanksAPI)
+	app.Post("/admin/api/create_rank", CreateRankAPI)
 
 	log.Fatal(app.Listen(":3000"))
 	// Access the websocket server: ws://0.0.0.0:3000/

@@ -90,8 +90,8 @@ func RemoveRankFromUser(id int64, rankToRemove string) error {
 	if err != nil {
 		return err
 	}
-	if slices.Contains(ranks, rankToRemove) {
-		return errors.New("rank already exists")
+	if !slices.Contains(ranks, rankToRemove) {
+		return errors.New("user doesn't have the rank attempting to be removed")
 	}
 
 	// Find the index of the rank to remove
