@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"slices"
 	"time"
@@ -29,7 +30,13 @@ func reauth(c *fiber.Ctx) error {
 
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	accountId := claims["id"].(string)
+	var accountId string
+	if id, ok := claims["id"].(float64); ok {
+		accountId = fmt.Sprintf("%f", id)
+	} else {
+		// Handle the case where "id" is not a float64
+		return c.SendStatus(fiber.StatusInternalServerError) // Or appropriate error
+	}
 
 	if check_if_token_expired(user) {
 		return c.SendString("token expired!")

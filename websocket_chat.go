@@ -174,7 +174,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 
 		switch r.Cmd {
 		case "msg":
-			if !slices.Contains(ranks, "CanSendMessages") {
+			if !slices.Contains(ranks, "CanSendMessage") {
 				break
 			}
 			r := SendMessageRequest{}
@@ -182,7 +182,6 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 				c.Close()
 				return
 			}
-			log.Println(r.Message)
 			db_msg := Messages{
 				Message:   string(r.Message),
 				UserId:    uint(user_id),
@@ -192,7 +191,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 			}
 			db.Create(&db_msg)
 		case "nudge":
-			if !slices.Contains(ranks, "CanSendNudges") {
+			if !slices.Contains(ranks, "CanSendNudge") {
 				break
 			}
 			db_msg := Messages{
