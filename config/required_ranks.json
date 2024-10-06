@@ -29,7 +29,8 @@
             "CanMuteUsers",
             "CanDeleteUsers",
             "CanChangeMOTD",
-            "CanSendSystemMessage"
+            "CanSendSystemMessage",
+            "CanSendTTS"
         ],
         "SubtractiveRanks": []
     },
@@ -61,7 +62,8 @@
             "CanMuteUsers",
             "CanDeleteUsers",
             "CanChangeMOTD",
-            "CanSendSystemMessage"
+            "CanSendSystemMessage",
+            "CanSendTTS"
         ]
     },
     {
@@ -320,6 +322,14 @@
     {
         "RankStrength":514,
         "RankName":"CanSendTyping",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":515,
+        "RankName":"CanSendTTS",
         "Color":"default",
         "ShowToOtherUsers":false,
         "ParentRanks": [],

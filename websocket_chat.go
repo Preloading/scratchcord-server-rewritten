@@ -58,7 +58,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 
 	// websocket.Conn bindings https://pkg.go.dev/github.com/fasthttp/websocket?tab=doc#pkg-index
 	var (
-		mt  int
+		// mt  int
 		msg []byte
 		err error
 	)
@@ -160,7 +160,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 	}()
 
 	for {
-		if mt, msg, err = c.ReadMessage(); err != nil {
+		if _, msg, err = c.ReadMessage(); err != nil {
 			log.Println("read:", err)
 			break
 		}
@@ -220,11 +220,10 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 		default:
 			c.Close()
 		}
-
-		if err = c.WriteMessage(mt, msg); err != nil {
-			log.Println("write:", err)
-			break
-		}
+		// if err = c.WriteMessage(mt, msg); err != nil {
+		// 	log.Println("write:", err)
+		// 	break
+		// }
 		// if err = c.WriteMessage(mt, []byte("Hello "+username+" welcome to #"+channel)); err != nil {
 		// 	log.Println("write:", err)
 		// 	break

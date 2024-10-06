@@ -111,3 +111,75 @@ func CreateRankAPI(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusConflict)
 	}
 }
+
+// func ModifyRankAPI(c *fiber.Ctx) error {
+// 	// Check if the user is authorized to do this action
+// 	if err := CheckIfTokenHasRank(c, "CanModifyRanks"); err != nil {
+// 		return c.SendStatus(fiber.StatusUnauthorized)
+// 	}
+
+// 	var rank DefaultRanksJson
+// 	if err := json.Unmarshal(c.Body(), &rank); err != nil {
+// 		return c.SendStatus(fiber.StatusBadRequest)
+// 	}
+
+// 	// Check if rank exists
+// 	existingRank := Ranks{}
+// 	result := db.Where("rank_name = ?", rank.RankName).First(&existingRank)
+// 	if result.RowsAffected != 0 {
+// 		// Rank exist, let's modify it
+
+// 		// Marshal parent and subtractive ranks to JSON
+// 		parentRanksJSON, err := json.Marshal(rank.ParentRanks)
+// 		if err != nil {
+// 			c.SendStatus(fiber.StatusBadRequest)
+// 			return c.SendString("failed to marshal parent ranks: " + err.Error())
+// 		}
+// 		subtractiveRanksJSON, err := json.Marshal(rank.SubtractiveRanks)
+// 		if err != nil {
+// 			c.SendStatus(fiber.StatusBadRequest)
+// 			return c.SendString("failed to marshal subtractive ranks: " + err.Error())
+// 		}
+
+// 		newRank := Ranks{
+// 			RankStrength:     rank.RankStrength,
+// 			RankName:         rank.RankName,
+// 			Color:            rank.Color,
+// 			ShowToOtherUsers: rank.ShowToOtherUsers,
+// 			ParentRanks:      string(parentRanksJSON),
+// 			SubtractiveRanks: string(subtractiveRanksJSON),
+// 		}
+// 		if err := db.Create(&newRank).Error; err != nil {
+// 			c.SendStatus(fiber.StatusInternalServerError)
+// 			return c.SendString("failed to create rank: " + err.Error())
+// 		}
+// 		return c.SendString("sucess!")
+// 	} else {
+// 		return c.SendStatus(fiber.StatusBadRequest)
+// 	}
+// }
+
+func DeleteRankAPI(c *fiber.Ctx) error {
+	// Check if the user is authorized to do this action
+	if err := CheckIfTokenHasRank(c, "CanDeleteRanks"); err != nil {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	var rank DefaultRanksJson
+	if err := json.Unmarshal(c.Body(), &rank); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	// Check if rank exists
+	existingRank := Ranks{}
+	result := db.Where("rank_name = ?", rank.RankName).First(&existingRank)
+	if result.RowsAffected != 0 {
+		// Rank exists, time to remove it!
+		if err := result.Delete(&existingRank).Error; err != nil {
+			return c.SendString("failed to delete rank" + err.Error())
+		}
+		return c.SendString("sucess!")
+	} else {
+		return c.SendString("rank doesn't exist!")
+	}
+}
