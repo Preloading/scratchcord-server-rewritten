@@ -164,6 +164,8 @@ func main() {
 	// Admin Requests
 	app.Post("/admin/api/grant_rank", GrantRanksAPI)
 	app.Post("/admin/api/revoke_rank", RevokeRanksAPI)
+
+	app.Post("/admin/api/delete_rank", DeleteRankAPI)
 	app.Post("/admin/api/create_rank", CreateRankAPI)
 
 	log.Fatal(app.Listen(":3000"))
