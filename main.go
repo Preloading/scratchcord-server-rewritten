@@ -78,6 +78,7 @@ var (
 	motd                        string   = os.Getenv("SCRATCHCORD_MOTD")
 	webhook_url                 string   = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
 	admin_password              string   = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
+	server_url                  string   = os.Getenv("SCRATCHCORD_SERVER_URL") // Example: http://127.0.0.1 or https://example.com/scratchcord/api
 	permitted_protocal_versions []string = []string{"SCLPV10", "SCPV10"}
 	db                          *gorm.DB
 	BroadcastPublisher          = NewEventPublisher()
@@ -121,7 +122,7 @@ func main() {
 
 	// Create fiber application
 	app := fiber.New(fiber.Config{
-		BodyLimit: 100 * 1024 * 1024, // 100MB
+		BodyLimit: 4 * 1024 * 1024, // 4MB
 	})
 
 	// app.Use(cors.New())
@@ -138,7 +139,9 @@ func main() {
 
 	app.Get("/get_user_info", get_user_info)
 	app.Get("/get_rank_info", GetRankInfo)
-	app.Post("/upload_file", UploadFile) // TODO: CHANGE THIS TO BE AUTHENTICATED!!!!!!
+
+	app.Static("/uploads", "./uploads")
+
 	// Add a websocket path
 	app.Use("/ws", websockek_path)
 	app.Get("/ws/:channel", websocket.New(global_channel_websocket_handler))
@@ -162,13 +165,16 @@ func main() {
 	start_discord_webhook() // Start the discord webhook
 
 	app.Post("/reauth", reauth)
-	app.Post("/change_password", change_password)
 	app.Get("/check_auth", check_auth)
 	app.Get("/get_offline_messages/:channel", get_offline_messages)
 
+	// User Management
+	app.Post("/change_password", change_password)
+	app.Post("/upload_profile_picture", UploadProfilePicture)
+
 	// Admin Requests
 	app.Post("/admin/api/grant_rank", GrantRanksAPI)
-	app.Post("/admin/api/revoke_rank", RevokeRanksAPI)
+	app.Post("/admin/apupload_profile_picture/i/revoke_rank", RevokeRanksAPI)
 
 	app.Post("/admin/api/delete_rank", DeleteRankAPI)
 	app.Post("/admin/api/create_rank", CreateRankAPI)
