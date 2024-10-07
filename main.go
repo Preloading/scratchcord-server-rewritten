@@ -58,12 +58,13 @@ type BroadcastDBMessage struct {
 	data  Messages
 }
 type UserInfoResponse struct {
-	ID          uint
-	Username    string
-	Avatar      string
-	DateCreated uint64
-	LastLogin   uint64
-	Ranks       string
+	ID             uint
+	Username       string
+	Avatar         string
+	DateCreated    uint64
+	LastLogin      uint64
+	Ranks          string
+	EffectiveRanks []string // Consistency be dammed
 }
 
 const (

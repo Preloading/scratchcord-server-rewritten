@@ -272,13 +272,18 @@ func get_user_info(c *fiber.Ctx) error {
 	if user.ID == 0 {
 		return c.SendString("user not found!")
 	}
+	effectiveRanks, err := GetEffectivePermissions(user.Ranks)
+	if err != nil {
+		c.SendString("user ranks is corrupted! please contact administrator!")
+	}
 	userResponse := UserInfoResponse{
-		ID:          user.ID,
-		Username:    user.Username,
-		Avatar:      user.Avatar,
-		Ranks:       user.Ranks,
-		DateCreated: user.DateCreated,
-		LastLogin:   user.LastLogin,
+		ID:             user.ID,
+		Username:       user.Username,
+		Avatar:         user.Avatar,
+		Ranks:          user.Ranks,
+		EffectiveRanks: effectiveRanks,
+		DateCreated:    user.DateCreated,
+		LastLogin:      user.LastLogin,
 	}
 	return c.JSON(userResponse)
 }
