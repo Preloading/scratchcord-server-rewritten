@@ -120,7 +120,9 @@ func main() {
 	register_default_admin_account()
 
 	// Create fiber application
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 100 * 1024 * 1024, // 100MB
+	})
 
 	// app.Use(cors.New())
 	app.Use(cors.New(cors.Config{
@@ -136,7 +138,7 @@ func main() {
 
 	app.Get("/get_user_info", get_user_info)
 	app.Get("/get_rank_info", GetRankInfo)
-
+	app.Post("/upload_file", UploadFile) // TODO: CHANGE THIS TO BE AUTHENTICATED!!!!!!
 	// Add a websocket path
 	app.Use("/ws", websockek_path)
 	app.Get("/ws/:channel", websocket.New(global_channel_websocket_handler))

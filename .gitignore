@@ -25,3 +25,5 @@ sqlite/scratchcord*.db
 .vscode/launch.json
 
 .env
+/uploads/
+__debug_bin*
