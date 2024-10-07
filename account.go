@@ -103,7 +103,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Check if the client is supported
-	if !slices.Contains(permitted_protocal_versions, r.ClientVersion) {
+	if !slices.Contains(permitted_protocol_versions, r.ClientVersion) {
 		return c.SendString("client version not supported!")
 	}
 
@@ -158,7 +158,7 @@ func register(c *fiber.Ctx) error {
 	}
 
 	// Check if client is supported
-	if !slices.Contains(permitted_protocal_versions, r.ClientVersion) {
+	if !slices.Contains(permitted_protocol_versions, r.ClientVersion) {
 		return c.SendString("client version not supported!")
 	}
 

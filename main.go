@@ -79,7 +79,7 @@ var (
 	webhook_url                 string   = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
 	admin_password              string   = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
 	server_url                  string   = os.Getenv("SCRATCHCORD_SERVER_URL") // Example: http://127.0.0.1 or https://example.com/scratchcord/api
-	permitted_protocal_versions []string = []string{"SCLPV10", "SCPV10"}
+	permitted_protocol_versions []string = []string{"SCLPV10", "SCPV10"}
 	db                          *gorm.DB
 	BroadcastPublisher          = NewEventPublisher()
 )
