@@ -14,6 +14,8 @@ type Messages struct {
 	// 2 - Nudge
 	// 3 - Typing, does not store in DB
 	// 4 - Game Start Request
+	// 5 - Message with TTS
+
 	// 100 - Global Message (admin only)
 	// 101 - Global TTS Message (admin only)
 	// 102 - Channel Special Message (admin only)

@@ -112,6 +112,17 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					UserId: recv_msg.data.UserId,
 				}
 				responce_json, err = json.Marshal(responce)
+			case 5: // TTS Message
+				if !slices.Contains(ranks, "CanReadTTS") {
+					break
+				}
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_msg_tts",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
 			case 100:
 			case 102:
 				if !slices.Contains(ranks, "CanReadSpecialMessages") {
@@ -187,6 +198,23 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 				Message:   string(r.Message),
 				UserId:    uint(user_id),
 				Type:      1,
+				Channel:   channel,
+				Timestamp: uint64(time.Now().Unix()),
+			}
+			db.Create(&db_msg)
+		case "msg_tts":
+			if !slices.Contains(ranks, "CanSendTTS") {
+				break
+			}
+			r := SendMessageRequest{}
+			if err := json.Unmarshal(msg, &r); err != nil {
+				c.Close()
+				return
+			}
+			db_msg := Messages{
+				Message:   string(r.Message),
+				UserId:    uint(user_id),
+				Type:      5,
 				Channel:   channel,
 				Timestamp: uint64(time.Now().Unix()),
 			}
