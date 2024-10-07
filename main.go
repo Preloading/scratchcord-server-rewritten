@@ -135,6 +135,7 @@ func main() {
 	app.Post("/register", register)
 
 	app.Get("/get_user_info", get_user_info)
+	app.Get("/get_rank_info", GetRankInfo)
 
 	// Add a websocket path
 	app.Use("/ws", websockek_path)

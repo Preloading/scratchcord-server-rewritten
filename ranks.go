@@ -241,6 +241,18 @@ func GetEffectivePermissions(userInput interface{}) ([]string, error) {
 	return effectivePermissions, nil
 }
 
+func GetRankInfo(c *fiber.Ctx) error {
+	rankName := c.Query("rankname")
+	if rankName == "" {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	var rank Ranks
+	if err := db.Where("rank_name = ?", rankName).First(&rank).Error; err != nil {
+		return c.SendString("rank doesn't exist!")
+	}
+	return c.JSON(rank)
+}
+
 //go:embed config/default_ranks.json
 var defaultRanksJson []byte
 
