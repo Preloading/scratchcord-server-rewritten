@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RankModifyJson struct {
@@ -13,6 +14,11 @@ type RankModifyJson struct {
 type DeleteRankRequestJson struct {
 	RemoveRankFromUsers bool
 	Rank                string
+}
+
+type ResetPasswordAdmin struct {
+	UserId      int64
+	NewPassword string
 }
 
 func GrantRanksAPI(c *fiber.Ctx) error {
@@ -112,6 +118,36 @@ func CreateRankAPI(c *fiber.Ctx) error {
 	}
 }
 
+func ChangePasswordAdmin(c *fiber.Ctx) error {
+	// Decode the request JSON
+	r := new(ResetPasswordAdmin)
+	if err := json.Unmarshal(c.BodyRaw(), &r); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	// Get the user entry in the DB
+	account := Accounts{}
+	result := db.First(&account, "id = ?", r.UserId)
+	if result.Error != nil {
+		return c.SendString("account does not exist!")
+	}
+	if result.RowsAffected == 0 {
+		return c.SendString("account does not exist!")
+	}
+
+	// Generate New password Password
+	hash, err := bcrypt.GenerateFromPassword([]byte(r.NewPassword), hash_default_cost)
+	if err != nil {
+		return c.SendString("password invalid!")
+	}
+
+	// Save the new password in the DB
+	account.PasswordHash = string(hash)
+	db.Save(&account)
+
+	// TODO: Make it invalidate all past tokens
+	return c.SendString("sucess!")
+}
+
 // func ModifyRankAPI(c *fiber.Ctx) error {
 // 	// Check if the user is authorized to do this action
 // 	if err := CheckIfTokenHasRank(c, "CanModifyRanks"); err != nil {
@@ -129,29 +165,41 @@ func CreateRankAPI(c *fiber.Ctx) error {
 // 	if result.RowsAffected != 0 {
 // 		// Rank exist, let's modify it
 
-// 		// Marshal parent and subtractive ranks to JSON
-// 		parentRanksJSON, err := json.Marshal(rank.ParentRanks)
-// 		if err != nil {
-// 			c.SendStatus(fiber.StatusBadRequest)
-// 			return c.SendString("failed to marshal parent ranks: " + err.Error())
+// 		// Check if the marshal elements were included
+// 		// and if it is, we set that to the rank.
+// 		if rank.ParentRanks != nil {
+// 			parentRanksJSON, err := json.Marshal(rank.ParentRanks)
+// 			if err != nil {
+// 				c.SendStatus(fiber.StatusBadRequest)
+// 				return c.SendString("failed to marshal parent ranks: " + err.Error())
+// 			}
+// 			existingRank.ParentRanks = string(parentRanksJSON)
 // 		}
-// 		subtractiveRanksJSON, err := json.Marshal(rank.SubtractiveRanks)
-// 		if err != nil {
-// 			c.SendStatus(fiber.StatusBadRequest)
-// 			return c.SendString("failed to marshal subtractive ranks: " + err.Error())
+// 		if rank.SubtractiveRanks != nil {
+// 			subtractiveRanksJSON, err := json.Marshal(rank.SubtractiveRanks)
+// 			if err != nil {
+// 				c.SendStatus(fiber.StatusBadRequest)
+// 				return c.SendString("failed to marshal subtractive ranks: " + err.Error())
+// 			}
+// 			existingRank.SubtractiveRanks = string(subtractiveRanksJSON)
 // 		}
 
-// 		newRank := Ranks{
-// 			RankStrength:     rank.RankStrength,
-// 			RankName:         rank.RankName,
-// 			Color:            rank.Color,
-// 			ShowToOtherUsers: rank.ShowToOtherUsers,
-// 			ParentRanks:      string(parentRanksJSON),
-// 			SubtractiveRanks: string(subtractiveRanksJSON),
+// 		if &rank.RankStrength != nil {
+// 			existingRank.RankStrength = rank.RankStrength
 // 		}
-// 		if err := db.Create(&newRank).Error; err != nil {
+// 		if &rank.RankName != nil {
+// 			existingRank.RankName = rank.RankName
+// 		}
+// 		if &rank.Color != nil {
+// 			existingRank.Color = rank.Color
+// 		}
+// 		if &rank.ShowToOtherUsers != nil {
+// 			existingRank.ShowToOtherUsers = rank.ShowToOtherUsers
+// 		}
+
+// 		if err := db.Save(&existingRank).Error; err != nil {
 // 			c.SendStatus(fiber.StatusInternalServerError)
-// 			return c.SendString("failed to create rank: " + err.Error())
+// 			return c.SendString("failed to modify rank: " + err.Error())
 // 		}
 // 		return c.SendString("sucess!")
 // 	} else {

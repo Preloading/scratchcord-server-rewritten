@@ -13,21 +13,35 @@ import (
 )
 
 type LoginRequest struct {
-	Username string
-	Password string
+	Username      string
+	Password      string
+	ClientVersion string
 }
 
 type ReauthRequest struct {
-	Token string
+	ClientVersion string
 }
 
 type RegisterRequest struct { // This is the same for now, but maybe later more info will be added, like email? idk. Least it'll have the option
-	Username string
-	Password string
+	Username      string
+	Password      string
+	ClientVersion string
+}
+
+type ResetPassword struct {
+	OldPassword string
+	NewPassword string
 }
 
 func reauth(c *fiber.Ctx) error {
+	// Verify Client is compatible
+	r := new(ReauthRequest)
 
+	if err := json.Unmarshal(c.BodyRaw(), &r); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	// Check to see if the current token is valid.
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	var accountId string
@@ -82,12 +96,18 @@ func reauth(c *fiber.Ctx) error {
 }
 
 func login(c *fiber.Ctx) error {
+	// Decode login params
 	r := new(LoginRequest)
-
 	if err := json.Unmarshal(c.BodyRaw(), &r); err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
+	// Check if the client is supported
+	if !slices.Contains(permitted_protocal_versions, r.ClientVersion) {
+		return c.SendString("client version not supported!")
+	}
+
+	// Get account from db
 	account := Accounts{}
 	result := db.First(&account, "username = ?", r.Username)
 	if result.Error != nil {
@@ -97,6 +117,7 @@ func login(c *fiber.Ctx) error {
 		return c.SendString("account does not exist!")
 	}
 
+	// Check if the account is allowed to sign in
 	ranks, err := GetEffectivePermissions(account.Ranks)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -134,6 +155,11 @@ func register(c *fiber.Ctx) error {
 
 	if err := json.Unmarshal(c.BodyRaw(), &r); err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	// Check if client is supported
+	if !slices.Contains(permitted_protocal_versions, r.ClientVersion) {
+		return c.SendString("client version not supported!")
 	}
 
 	// Check if username is already claimed.
@@ -180,6 +206,56 @@ func register(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(fiber.Map{"token": t, "avatar": account.Avatar, "ranks": ranks, "motd": motd})
+}
+
+func change_password(c *fiber.Ctx) error {
+	// Decode the user token and get the user entry in the DB
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	var accountId string
+	if id, ok := claims["id"].(float64); ok {
+		accountId = fmt.Sprintf("%f", id)
+	} else {
+		// Handle the case where "id" is not a float64
+		return c.SendStatus(fiber.StatusInternalServerError) // Or appropriate error
+	}
+
+	if check_if_token_expired(user) {
+		return c.SendString("token expired!")
+	}
+
+	account := Accounts{}
+	result := db.First(&account, "id = ?", accountId)
+	if result.Error != nil {
+		return c.SendString("account does not exist!")
+	}
+	if result.RowsAffected == 0 {
+		return c.SendString("account does not exist!")
+	}
+
+	// Decode the request JSON
+	r := new(ResetPassword)
+	if err := json.Unmarshal(c.BodyRaw(), &r); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	// Check if the old password matches the current password
+	if err := bcrypt.CompareHashAndPassword([]byte(account.PasswordHash), []byte(r.OldPassword)); err != nil {
+		return c.SendString("wrong password!")
+	}
+
+	// Generate New password Password
+	hash, err := bcrypt.GenerateFromPassword([]byte(r.NewPassword), hash_default_cost)
+	if err != nil {
+		return c.SendString("password invalid!")
+	}
+
+	// Save the new password in the DB
+	account.PasswordHash = string(hash)
+	db.Save(&account)
+
+	// TODO: Make it invalidate all past tokens
+	return c.SendString("sucess!")
 }
 
 func get_user_info(c *fiber.Ctx) error {

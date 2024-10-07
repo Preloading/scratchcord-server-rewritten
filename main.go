@@ -74,12 +74,13 @@ var (
 	// Obviously, this is just a test example. Do not do this in production.
 	// In production, you would have the private key and public key pair generated
 	// in advance. NEVER add a private key to any GitHub repo.
-	privateKey         *rsa.PrivateKey
-	motd               string = os.Getenv("SCRATCHCORD_MOTD")
-	webhook_url        string = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
-	admin_password     string = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
-	db                 *gorm.DB
-	BroadcastPublisher = NewEventPublisher()
+	privateKey                  *rsa.PrivateKey
+	motd                        string   = os.Getenv("SCRATCHCORD_MOTD")
+	webhook_url                 string   = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
+	admin_password              string   = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
+	permitted_protocal_versions []string = []string{"SCLPV10", "SCPV10"}
+	db                          *gorm.DB
+	BroadcastPublisher          = NewEventPublisher()
 )
 
 func main() {
@@ -158,6 +159,7 @@ func main() {
 	start_discord_webhook() // Start the discord webhook
 
 	app.Post("/reauth", reauth)
+	app.Post("/change_password", change_password)
 	app.Get("/check_auth", check_auth)
 	app.Get("/get_offline_messages/:channel", get_offline_messages)
 
@@ -167,6 +169,7 @@ func main() {
 
 	app.Post("/admin/api/delete_rank", DeleteRankAPI)
 	app.Post("/admin/api/create_rank", CreateRankAPI)
+	app.Post("/admin/api/reset_password", ChangePasswordAdmin)
 
 	log.Fatal(app.Listen(":3000"))
 	// Access the websocket server: ws://0.0.0.0:3000/
