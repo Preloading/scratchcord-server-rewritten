@@ -43,16 +43,16 @@ func UploadProfilePicture(c *fiber.Ctx) error {
 		return c.SendString("account does not exist!")
 	}
 
-	// Temporarly removed as rank is not added yet
+	// Check if the user is allowed to change their profile picture
 
-	// ranks, err := GetEffectivePermissions(account.Ranks)
-	// if err != nil {
-	// 	return c.SendStatus(fiber.StatusInternalServerError)
-	// }
+	ranks, err := GetEffectivePermissions(account.Ranks)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
 
-	// if !slices.Contains(ranks, "CanChangeProfilePicture") {
-	// 	return c.SendString("changing profile pictures is restricted!")
-	// }
+	if !slices.Contains(ranks, "CanChangeProfilePicture") {
+		return c.SendString("changing profile pictures is restricted!")
+	}
 
 	// Do image processing
 	file, err := c.FormFile("file")

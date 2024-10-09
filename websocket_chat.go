@@ -112,12 +112,34 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					UserId: recv_msg.data.UserId,
 				}
 				responce_json, err = json.Marshal(responce)
+			case 4: // Create Game Message
+				if !slices.Contains(ranks, "CanJoinGame") {
+					break
+				}
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_create_game_request",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
 			case 5: // TTS Message
 				if !slices.Contains(ranks, "CanReadTTS") {
 					break
 				}
 				responce := RecievedMessageResponse{
 					Cmd:       "recv_msg_tts",
+					UserId:    recv_msg.data.UserId,
+					MessageId: recv_msg.data.ID,
+					Message:   recv_msg.data.Message,
+				}
+				responce_json, err = json.Marshal(responce)
+			case 6: // Join Game Message
+				if !slices.Contains(ranks, "CanJoinGame") {
+					break
+				}
+				responce := RecievedMessageResponse{
+					Cmd:       "recv_join_game_request",
 					UserId:    recv_msg.data.UserId,
 					MessageId: recv_msg.data.ID,
 					Message:   recv_msg.data.Message,
@@ -246,6 +268,40 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 				},
 			}
 			BroadcastPublisher.Publish(msg)
+		case "create_game":
+			if !slices.Contains(ranks, "CanCreateGame") {
+				break
+			}
+			r := CreateGameRequest{}
+			if err := json.Unmarshal(msg, &r); err != nil {
+				c.Close()
+				return
+			}
+			db_msg := Messages{
+				Message:   r.GameToPlay,
+				UserId:    uint(user_id),
+				Type:      4,
+				Channel:   channel,
+				Timestamp: uint64(time.Now().Unix()),
+			}
+			db.Create(&db_msg)
+		case "join_game":
+			if !slices.Contains(ranks, "CanJoinGame") {
+				break
+			}
+			r := JoinGameRequest{}
+			if err := json.Unmarshal(msg, &r); err != nil {
+				c.Close()
+				return
+			}
+			db_msg := Messages{
+				Message:   string(r.CreateGameMessageId),
+				UserId:    uint(user_id),
+				Type:      6,
+				Channel:   channel,
+				Timestamp: uint64(time.Now().Unix()),
+			}
+			db.Create(&db_msg)
 		default:
 			c.Close()
 		}

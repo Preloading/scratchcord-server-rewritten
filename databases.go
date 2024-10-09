@@ -15,6 +15,7 @@ type Messages struct {
 	// 3 - Typing, does not store in DB
 	// 4 - Game Start Request
 	// 5 - Message with TTS
+	// 6 - Game Join
 
 	// 100 - Global Message (admin only)
 	// 101 - Global TTS Message (admin only)

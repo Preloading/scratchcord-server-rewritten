@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"slices"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -118,6 +119,7 @@ func CreateRankAPI(c *fiber.Ctx) error {
 	}
 }
 
+// TODO: move this to
 func ChangePasswordAdmin(c *fiber.Ctx) error {
 	// Decode the request JSON
 	r := new(ResetPasswordAdmin)
@@ -132,6 +134,16 @@ func ChangePasswordAdmin(c *fiber.Ctx) error {
 	}
 	if result.RowsAffected == 0 {
 		return c.SendString("account does not exist!")
+	}
+
+	// Check permissions
+	ranks, err := GetEffectivePermissions(account.Ranks)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if !slices.Contains(ranks, "CanResetOtherUsersPasswords") {
+		return c.SendString("changing profile pictures is restricted!")
 	}
 
 	// Generate New password Password

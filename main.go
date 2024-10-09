@@ -34,6 +34,14 @@ type SendMessageRequest struct {
 	Cmd     string
 	Message string
 }
+type CreateGameRequest struct {
+	Cmd        string
+	GameToPlay string
+}
+type JoinGameRequest struct {
+	Cmd                 string
+	CreateGameMessageId uint
+}
 type RecievedMessageResponse struct {
 	Cmd       string
 	UserId    uint
@@ -105,6 +113,7 @@ func main() {
 		os.Create(os.Getenv("SCRATCHCORD_DB_PATH"))
 	}
 
+	// Uploaded Media Files
 	db, err = gorm.Open(sqlite.Open(os.Getenv("SCRATCHCORD_DB_PATH")), &gorm.Config{})
 
 	if err != nil {

@@ -29,7 +29,9 @@
             "CanMuteUsers",
             "CanDeleteUsers",
             "CanChangeMOTD",
-            "CanSendSystemMessage"
+            "CanSendSystemMessage",
+            "CanChangeProfilePicture",
+            "CanResetOtherUsersPassword"
         ],
         "SubtractiveRanks": []
     },
@@ -76,7 +78,11 @@
             "CanDeleteUsers",
             "CanChangeMOTD",
             "CanSendSystemMessage",
-            "CanSendTTS"
+            "CanSendTTS",
+            "CanReadTTS",
+            "CanChangeProfilePicture",
+            "CanJoinGame",
+            "CanCreateGame"
         ]
     },
     {
@@ -93,7 +99,14 @@
 
 
 
-
+    {
+        "RankStrength":3012,
+        "RankName":"CanResetOtherUsersPasswords",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
     {
         "RankStrength":3011,
         "RankName":"CanKickAllUsers",
@@ -206,7 +219,8 @@
             "TextAI1Access",
             "TextAI2Access",
             "ImageAIAccess",
-            "CanSendTTS"
+            "CanSendTTS",
+            "CanChangeProfilePicture"
         ],
         "SubtractiveRanks": [
             "AdvertsEnabled"
@@ -246,7 +260,11 @@
             "CanBeLoggedInto",
             "CanRecieveTyping",
             "CanSendTyping",
-            "AdvertsEnabled"
+            "AdvertsEnabled",
+            "CanReadTTS",
+            "CanChangePassword",
+            "CanJoinGame",
+            "CanCreateGame"
         ],
         "SubtractiveRanks": []
     },
@@ -385,6 +403,48 @@
         "Color":"default",
         "ShowToOtherUsers":false,
         "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":516,
+        "RankName":"CanReadTTS",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":517,
+        "RankName":"CanChangeProfilePicture",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":518,
+        "RankName":"CanChangePassword",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":519,
+        "RankName":"CanJoinGame",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [],
+        "SubtractiveRanks": []
+    },
+    {
+        "RankStrength":520,
+        "RankName":"CanCreateGame",
+        "Color":"default",
+        "ShowToOtherUsers":false,
+        "ParentRanks": [
+            "CanJoinGame"
+        ],
         "SubtractiveRanks": []
     }
 ]

@@ -21,6 +21,9 @@ func start_discord_webhook() {
 			// 2 - Nudge
 			// 3 - Typing, does not store in DB
 			// 4 - Game Start Request
+			// 5 - Message with TTS
+			// 6 - Game Join
+
 			// 100 - Global Message (admin only)
 			// 101 - Global TTS Message (admin only)
 			// 102 - Channel Special Message (admin only)
@@ -28,30 +31,37 @@ func start_discord_webhook() {
 			// 104 - Kick User (admin only)
 			// 105 - Kick All Users (admin only)
 			var webhookUsername string
+			// Avatar might not work on localhost
+			var webhookAvatar string
 			var webhookContents string
 			switch msg.data.Type {
 			case 1:
+			case 5:
 				webhookUsername = user.Username
+				webhookAvatar = user.Avatar
 				webhookContents = msg.data.Message
 			case 2:
 				webhookUsername = user.Username
+				webhookAvatar = user.Avatar
 				webhookContents = user.Username + " has sent a nudge!"
 			case 100:
 			case 101:
 			case 102:
 			case 103:
 				webhookUsername = "System Message"
+				webhookAvatar = user.Avatar
 				webhookContents = user.Username + ": " + msg.data.Message
 			case 3:
 			case 4:
+			case 6:
 			case 104:
 			case 105:
 				continue
 			}
 			message := discordwebhook.Message{
-				Username: &webhookUsername,
-				//AvatarUrl: &user.Avatar,
-				Content: &webhookContents,
+				Username:  &webhookUsername,
+				AvatarUrl: &webhookAvatar,
+				Content:   &webhookContents,
 			}
 			if err := discordwebhook.SendMessage(webhook_url, message); err != nil {
 				log.Println(err)
