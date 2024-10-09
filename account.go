@@ -182,7 +182,7 @@ func register(c *fiber.Ctx) error {
 
 	// Generate the default avatar
 	fileName := uuid.NewString() + ".webp"
-	destination := fmt.Sprintf("./uploads/profile-pictures/%s", fileName)
+	destination := fmt.Sprintf(upload_directory+"/uploads/profile-pictures/%s", fileName)
 	out, err := os.Create(destination)
 	if err != nil {
 		panic(err) // This should NEVER fail unless we run out of disk space.

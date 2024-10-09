@@ -94,7 +94,7 @@ func UploadProfilePicture(c *fiber.Ctx) error {
 
 	// Save the WebP image data to a file
 	fileName := uuid.NewString() + ".webp"
-	destination := fmt.Sprintf("./uploads/profile-pictures/%s", fileName)
+	destination := fmt.Sprintf(upload_directory+"/profile-pictures/%s", fileName)
 	err = os.WriteFile(destination, buf.Bytes(), 0644) // Save from buffer
 	if err != nil {
 		return fmt.Errorf("failed to save WebP image: %w", err)

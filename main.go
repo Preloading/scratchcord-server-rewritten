@@ -88,6 +88,7 @@ var (
 	webhook_url                 string   = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
 	admin_password              string   = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
 	server_url                  string   = os.Getenv("SCRATCHCORD_SERVER_URL") // Example: http://127.0.0.1 or https://example.com/scratchcord/api
+	upload_directory            string   = os.Getenv("SCRATCHCORD_MEDIA_PATH")
 	permitted_protocol_versions []string = []string{"SCLPV10", "SCPV10"}
 	db                          *gorm.DB
 	BroadcastPublisher          = NewEventPublisher()
@@ -113,7 +114,12 @@ func main() {
 		os.Create(os.Getenv("SCRATCHCORD_DB_PATH"))
 	}
 
-	// Uploaded Media Files
+	// Init Uploaded Media Files Directories
+	if _, err := os.Stat(upload_directory); errors.Is(err, os.ErrNotExist) {
+		os.Create(upload_directory)
+		os.Create(upload_directory + "/profile-pictures")
+	}
+
 	db, err = gorm.Open(sqlite.Open(os.Getenv("SCRATCHCORD_DB_PATH")), &gorm.Config{})
 
 	if err != nil {
@@ -150,7 +156,7 @@ func main() {
 	app.Get("/get_user_info", get_user_info)
 	app.Get("/get_rank_info", GetRankInfo)
 
-	app.Static("/uploads", "./uploads")
+	app.Static("/uploads", upload_directory)
 
 	// Add a websocket path
 	app.Use("/ws", websockek_path)
