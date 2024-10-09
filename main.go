@@ -80,15 +80,13 @@ const (
 )
 
 var (
-	// Obviously, this is just a test example. Do not do this in production.
-	// In production, you would have the private key and public key pair generated
-	// in advance. NEVER add a private key to any GitHub repo.
 	privateKey                  *rsa.PrivateKey
 	motd                        string   = os.Getenv("SCRATCHCORD_MOTD")
 	webhook_url                 string   = os.Getenv("SCRATCHCORD_WEBHOOK_URL")
 	admin_password              string   = os.Getenv("SCRATCHCORD_ADMIN_PASSWORD")
 	server_url                  string   = os.Getenv("SCRATCHCORD_SERVER_URL") // Example: http://127.0.0.1 or https://example.com/scratchcord/api
 	upload_directory            string   = os.Getenv("SCRATCHCORD_MEDIA_PATH")
+	key_path                    string   = os.Getenv("SCRATCHCORD_KEY_PATH")
 	permitted_protocol_versions []string = []string{"SCLPV10", "SCPV10"}
 	db                          *gorm.DB
 	BroadcastPublisher          = NewEventPublisher()
@@ -100,24 +98,42 @@ func main() {
 
 	godotenv.Load()
 
-	// Auth setup
-	rng := rand.Reader
 	var err error
-	privateKey, err = rsa.GenerateKey(rng, 2048)
-	if err != nil {
-		log.Fatalf("rsa.GenerateKey: %v", err)
+
+	// Init Key Directories
+	if _, err := os.Stat(key_path); errors.Is(err, os.ErrNotExist) {
+		os.Mkdir(key_path+"/", os.ModePerm)
 	}
 
+	// Auth setup
+	privDataPEM, err := os.ReadFile(key_path + "/auth-key.pem")
+
+	if err != nil {
+		log.Printf("Auth private key not found! Generating Authentication Private Key...")
+
+		// A private key has not been generated, lets create one and add it to the console.
+		rng := rand.Reader
+		privateKey, err = rsa.GenerateKey(rng, 2048)
+		if err != nil {
+			log.Fatalf("rsa.GenerateKey: %v", err)
+		}
+
+		os.WriteFile(key_path+"/auth-key.pem", []byte(ExportRsaPrivateKeyAsPemStr(privateKey)), 0644)
+	} else {
+		privateKey, err = ParseRsaPrivateKeyFromPemStr(string(privDataPEM))
+		if err != nil {
+			panic(err)
+		}
+	}
 	// Database
-	os.Getenv("SCRATCHCORD_DB_PATH")
 	if _, err := os.Stat(os.Getenv("SCRATCHCORD_DB_PATH")); errors.Is(err, os.ErrNotExist) {
 		os.Create(os.Getenv("SCRATCHCORD_DB_PATH"))
 	}
 
 	// Init Uploaded Media Files Directories
 	if _, err := os.Stat(upload_directory); errors.Is(err, os.ErrNotExist) {
-		os.Create(upload_directory)
-		os.Create(upload_directory + "/profile-pictures")
+		os.Mkdir(upload_directory+"/", os.ModePerm)
+		os.Mkdir(upload_directory+"/profile-pictures", os.ModePerm)
 	}
 
 	db, err = gorm.Open(sqlite.Open(os.Getenv("SCRATCHCORD_DB_PATH")), &gorm.Config{})

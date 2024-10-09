@@ -21,7 +21,6 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 		c.Close()
 		return
 	}
-	fmt.Println(c.Query("token"))
 	token, tokenerr := jwt.Parse(c.Query("token"), func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", c.Query("token"))

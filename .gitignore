@@ -20,10 +20,11 @@
 # Go workspace file
 go.work
 
-sqlite/scratchcord*.db
 .vscode
 .vscode/launch.json
 
 .env
+/sqlite/
 /uploads/
+/keys/
 __debug_bin*

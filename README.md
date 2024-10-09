@@ -36,9 +36,16 @@ services:
 
 |Env|Function|Default|
 | :----: | --- | :---: |
-|``SCRATCHCORD_MOTD``| Sets the message that is sent to every client on login|``"Welcome to scratchcord!"``|
+|``SCRATCHCORD_MOTD``| Sets the message that is sent to every client on login. Having one not set in the future will allow you to set this from the admin panel.|None|
 |``SCRATCHCORD_DB_PATH``| Changes the path in the container where the SQLite DB is stored. |``"/config/sqlite/scratchcord.db"``|
 |``SCRATCHCORD_WEBHOOK_URL``| Sets the webhook integration to the "general" channel|None|
+|``SCRATCHCORD_SERVER_URL``| The URL in which this server is accessible through |``"http://127.0.0.1:3000"``|
+|``SCRATCHCORD_MEDIA_PATH``| Changes the path in the container where uploads such as profile pictues are stored. |``"/config/uploads"``|
+|``SCRATCHCORD_DB_PATH``| Changes the path in the container where the SQLite DB is stored. |``"/config/sqlite/scratchcord.db"``|
+|``SCRATCHCORD_ADMIN_PASSWORD``| The password that is set to the Administrator user on start |``"scratchcord"``|
+|``SCRATCHCORD_KEY_PATH``| The locations where the cryption keys are. |``"/config/keys"``|
+
+
 
 ### 🖥 Bare metal
 #### Clone the repo
