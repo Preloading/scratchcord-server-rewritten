@@ -27,10 +27,18 @@ Here is an example docker compose file:
 services:
   scratchcord-server:
     image: ghcr.io/preloading/scratchcord-server-rewritten:main
+    environment:
+      - SCRATCHCORD_MOTD=Welcome to My New Scratchcord Server!
+      - SCRATCHCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890/1qax2sdv4rfv5ggb6yhn7ujm8ik
+      - SCRATCHCORD_ADMIN_PASSWORD=password
+      - SCRATCHCORD_SERVER_URL=https://example.com/api
     ports:
       - "8080:3000"
     volumes:
       - '/path/to/scratchcord-server-rewritten/sqlite:/config/sqlite'
+      - '/path/to/scratchcord-server-rewritten/keys:/config/keys'
+      - '/path/to/scratchcord-server-rewritten/uploads:/config/uploads'
+
 ```
 ### Environment Variables (-e)
 
