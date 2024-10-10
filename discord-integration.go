@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gtuk/discordwebhook"
@@ -35,8 +36,7 @@ func start_discord_webhook() {
 			var webhookAvatar string
 			var webhookContents string
 			switch msg.data.Type {
-			case 1:
-			case 5:
+			case 1, 5:
 				webhookUsername = user.Username
 				webhookAvatar = user.Avatar
 				webhookContents = msg.data.Message
@@ -44,18 +44,11 @@ func start_discord_webhook() {
 				webhookUsername = user.Username
 				webhookAvatar = user.Avatar
 				webhookContents = user.Username + " has sent a nudge!"
-			case 100:
-			case 101:
-			case 102:
-			case 103:
+			case 100, 101, 102, 103:
 				webhookUsername = "System Message"
 				webhookAvatar = user.Avatar
 				webhookContents = user.Username + ": " + msg.data.Message
-			case 3:
-			case 4:
-			case 6:
-			case 104:
-			case 105:
+			case 3, 4, 6, 104, 105:
 				continue
 			}
 			message := discordwebhook.Message{
@@ -63,6 +56,8 @@ func start_discord_webhook() {
 				AvatarUrl: &webhookAvatar,
 				Content:   &webhookContents,
 			}
+			fmt.Println(user.Username)
+			fmt.Println(webhookUsername)
 			if err := discordwebhook.SendMessage(webhook_url, message); err != nil {
 				log.Println(err)
 			}

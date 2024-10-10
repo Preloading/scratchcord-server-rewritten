@@ -144,8 +144,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					Message:   recv_msg.data.Message,
 				}
 				responce_json, err = json.Marshal(responce)
-			case 100:
-			case 102:
+			case 100, 102:
 				if !slices.Contains(ranks, "CanReadSpecialMessages") {
 					break
 				}
@@ -156,8 +155,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					Message:   recv_msg.data.Message,
 				}
 				responce_json, err = json.Marshal(responce)
-			case 101:
-			case 103:
+			case 101, 103:
 				if !slices.Contains(ranks, "CanReadSpecialMessages") {
 					break
 				}
@@ -168,8 +166,7 @@ func global_channel_websocket_handler(c *websocket.Conn) {
 					Message:   recv_msg.data.Message,
 				}
 				responce_json, err = json.Marshal(responce)
-			case 104:
-			case 105:
+			case 104, 105:
 				responce := KickedResponse{
 					Cmd:     "kicked",
 					Message: recv_msg.data.Message,
