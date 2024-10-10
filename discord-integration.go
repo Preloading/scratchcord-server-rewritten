@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gtuk/discordwebhook"
@@ -56,8 +55,6 @@ func start_discord_webhook() {
 				AvatarUrl: &webhookAvatar,
 				Content:   &webhookContents,
 			}
-			fmt.Println(user.Username)
-			fmt.Println(webhookUsername)
 			if err := discordwebhook.SendMessage(webhook_url, message); err != nil {
 				log.Println(err)
 			}
