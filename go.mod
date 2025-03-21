@@ -25,7 +25,7 @@ require (
 	github.com/chai2010/webp v1.1.1
 	github.com/fasthttp/websocket v1.5.8 // indirect
 	github.com/gofiber/contrib/jwt v1.0.10 // direct
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
