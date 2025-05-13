@@ -22,7 +22,7 @@ require (
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/chai2010/webp v1.1.1
+	github.com/chai2010/webp v1.4.0
 	github.com/fasthttp/websocket v1.5.8 // indirect
 	github.com/gofiber/contrib/jwt v1.0.10 // direct
 	github.com/golang-jwt/jwt/v5 v5.2.1
