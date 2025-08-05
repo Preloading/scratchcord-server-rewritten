@@ -1,11 +1,12 @@
 module scratchcord-server
 
-go 1.22.2
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
 	github.com/gofiber/contrib/websocket v1.3.2
-	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gtuk/discordwebhook v1.2.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.36.0
